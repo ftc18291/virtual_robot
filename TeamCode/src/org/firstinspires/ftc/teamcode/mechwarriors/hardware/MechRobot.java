@@ -1,7 +1,12 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.mechwarriors.hardware;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.teamcode.mechwarriors.JunctionType;
 
 public class MechRobot {
 
@@ -28,30 +33,27 @@ public class MechRobot {
     DcMotor leftLiftMotor;
     DcMotor rightLiftMotor;
 
+    // IMU
+    BNO055IMU imu;
+
     Claw claw;
 
-    MechRobot(HardwareMap hardwareMap) {
+    public MechRobot(HardwareMap hardwareMap) {
         // Front Left Motor
         frontLeftMotor = hardwareMap.get(DcMotor.class, "front_left_motor");
         frontLeftMotor.setDirection(DcMotor.Direction.REVERSE);
-        frontLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Front Right Motor
         frontRightMotor = hardwareMap.get(DcMotor.class, "front_right_motor");
-        frontRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Back Left Motor
         backLeftMotor = hardwareMap.get(DcMotor.class, "back_left_motor");
         backLeftMotor.setDirection(DcMotor.Direction.REVERSE);
-        backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Back Right Motor
         backRightMotor = hardwareMap.get(DcMotor.class, "back_right_motor");
-        backRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        resetMotorTicks();
 
         // Left Lift Motor
         leftLiftMotor = hardwareMap.get(DcMotor.class, "left_lift_motor");
@@ -66,10 +68,38 @@ public class MechRobot {
         rightLiftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightLiftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        initIMU(hardwareMap);
+
         claw = new EthanClaw(hardwareMap);
     }
 
-    Claw getClaw() {
+    void initIMU(HardwareMap hardwareMap) {
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.accelerationIntegrationAlgorithm = null;
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.calibrationData = null;
+        parameters.calibrationDataFile = "";
+        parameters.loggingEnabled = false;
+        parameters.loggingTag = "IMU";
+        imu.initialize(parameters);
+    }
+
+    /**
+     * Can be used to "soften" the controls
+     * @param input
+     * @return
+     */
+    public double squareInputWithSign(double input) {
+        double output = input * input;
+        if (input < 0) {
+            output = output * -1;
+        }
+        return output;
+    }
+
+    public Claw getClaw() {
         return claw;
     }
 
@@ -80,7 +110,7 @@ public class MechRobot {
         backRightMotor.setPower(powerBackRight);
     }
 
-    void mecanumDrive(double x, double y, double rx) {
+    public void mecanumDrive(double x, double y, double rx) {
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
         double frontRightPower = ((y - x - rx) / denominator);
         double frontLeftPower = ((y + x + rx) / denominator);
@@ -95,7 +125,7 @@ public class MechRobot {
      * @param distanceInInches distance in inches
      * @return number of ticks
      */
-    double calculateDriveTicks(double distanceInInches) {
+    public double calculateDriveTicks(double distanceInInches) {
         // TODO: Implement logic
         return 0.0;
     }
@@ -105,9 +135,18 @@ public class MechRobot {
      *
      * @return the average ticks
      */
-    double getDriveTicks() {
+    public double getDriveTicks() {
         // TODO: Implement - calculate and return the average ticks for all drive motors
-        return 0.0;
+        int motorTicks = (frontLeftMotor.getCurrentPosition() +
+                frontRightMotor.getCurrentPosition() +
+                backLeftMotor.getCurrentPosition() +
+                backRightMotor.getCurrentPosition()) / 4;
+        // System.out.println("motor ticks: " + motorTicks);
+        return motorTicks;
+    }
+
+    public double getHeading() {
+        return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
     }
 
     public void liftArmUp() {
@@ -128,7 +167,6 @@ public class MechRobot {
     }
 
     /**
-     *
      * @param junctionType type of junction
      */
     public void liftArmToJunctionHeight(JunctionType junctionType) {
@@ -146,7 +184,26 @@ public class MechRobot {
         }
     }
 
-    double calculateLiftTicks(double heightInInches) {
+    public double calculateLiftTicks(double heightInInches) {
         return heightInInches / LIFT_SPOOL_TICKS_PER_ONE_INCH;
+    }
+
+    public void resetMotorTicks() {
+        frontLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    public int motorTicks() {
+        return 0;
+    }
+
+    public void stop() {
+        this.drive(0, 0, 0, 0);
     }
 }

@@ -75,7 +75,6 @@ public class MechWarriorsPowerPlayMecanumBot extends MecanumPhysicsBase {
 
     public synchronized void updateDisplay() {
         super.updateDisplay();
-        System.out.println("left claw: " + leftClawServo.getPosition());
         ((Rotate) leftClaw.getTransforms().get(0)).setAngle(90.0 * leftClawServo.getPosition());
         ((Rotate) rightClaw.getTransforms().get(0)).setAngle(-90.0 * rightClawServo.getPosition());
 

@@ -1,9 +1,11 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.mechwarriors.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import org.firstinspires.ftc.teamcode.mechwarriors.hardware.Claw;
+import org.firstinspires.ftc.teamcode.mechwarriors.hardware.MechRobot;
 
-@TeleOp(name = "PowerPlayOpMode", group = "MechWarriors")
+@TeleOp(group = "MechWarriors")
 public class PowerPlayOpMode extends OpMode {
     MechRobot rb;
     Claw claw;
