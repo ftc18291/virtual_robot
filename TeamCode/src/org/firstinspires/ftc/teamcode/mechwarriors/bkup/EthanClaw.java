@@ -1,7 +1,8 @@
-package org.firstinspires.ftc.teamcode.mechwarriors.hardware;
+package org.firstinspires.ftc.teamcode.mechwarriors.bkup;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import org.firstinspires.ftc.teamcode.mechwarriors.hardware.Claw;
 
 public class EthanClaw implements Claw {
 

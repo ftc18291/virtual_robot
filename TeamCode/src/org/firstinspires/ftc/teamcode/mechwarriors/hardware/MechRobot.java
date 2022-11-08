@@ -7,13 +7,12 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.teamcode.mechwarriors.JunctionType;
+import org.firstinspires.ftc.teamcode.mechwarriors.Utilities;
 
 public class MechRobot {
 
-    private final static double MILLIMETERS_PER_INCH = 25.4;
-
     private final static double LIFT_SPOOL_DIAMETER_MM = 34;
-    private final static double LIFT_SPOOL_DIAMETER_IN = LIFT_SPOOL_DIAMETER_MM / MILLIMETERS_PER_INCH;
+    private final static double LIFT_SPOOL_DIAMETER_IN = LIFT_SPOOL_DIAMETER_MM / Utilities.MILLIMETERS_PER_INCH;
     private final static double LIFT_SPOOL_CIRCUMFERENCE_IN = LIFT_SPOOL_DIAMETER_IN * Math.PI;
     private final static double LIFT_MOTOR_TICKS_PER_ROTATION = 28;
     private final static double LIFT_MOTOR_GEAR_RATIO = 20;
@@ -70,7 +69,8 @@ public class MechRobot {
 
         initIMU(hardwareMap);
 
-        claw = new EthanClaw(hardwareMap);
+        // TODO 7: Create new claw instance
+        //claw = new ...;
     }
 
     void initIMU(HardwareMap hardwareMap) {
@@ -86,24 +86,11 @@ public class MechRobot {
         imu.initialize(parameters);
     }
 
-    /**
-     * Can be used to "soften" the controls
-     * @param input
-     * @return
-     */
-    public double squareInputWithSign(double input) {
-        double output = input * input;
-        if (input < 0) {
-            output = output * -1;
-        }
-        return output;
-    }
-
     public Claw getClaw() {
         return claw;
     }
 
-    void drive(double powerFrontRight, double powerFrontLeft, double powerBackLeft, double powerBackRight) {
+    public void drive(double powerFrontRight, double powerFrontLeft, double powerBackLeft, double powerBackRight) {
         frontRightMotor.setPower(powerFrontRight);
         frontLeftMotor.setPower(powerFrontLeft);
         backLeftMotor.setPower(powerBackLeft);
@@ -126,7 +113,9 @@ public class MechRobot {
      * @return number of ticks
      */
     public double calculateDriveTicks(double distanceInInches) {
-        // TODO: Implement logic
+        // TODO 1: Implement logic
+        // Drive motors: 537.7 ticks per revolution
+        // Wheels 96mm diameter
         return 0.0;
     }
 
@@ -136,12 +125,10 @@ public class MechRobot {
      * @return the average ticks
      */
     public double getDriveTicks() {
-        // TODO: Implement - calculate and return the average ticks for all drive motors
-        int motorTicks = (frontLeftMotor.getCurrentPosition() +
-                frontRightMotor.getCurrentPosition() +
-                backLeftMotor.getCurrentPosition() +
-                backRightMotor.getCurrentPosition()) / 4;
-        // System.out.println("motor ticks: " + motorTicks);
+        // TODO 2: Implement - calculate and return the average ticks for all drive motors
+        // use getCurrentPosition method
+        int motorTicks = 0;
+        System.out.println("motor ticks: " + motorTicks);
         return motorTicks;
     }
 
@@ -150,13 +137,15 @@ public class MechRobot {
     }
 
     public void liftArmUp() {
-        // TODO: Stop the lift when it gets to the max extension
+        // TODO 3: Stop the lift when it gets to the max extension
+        // TODO 4: Slow the lift as it gets close to the max extension
         leftLiftMotor.setPower(LIFT_MAX_UP_POWER);
         rightLiftMotor.setPower(LIFT_MAX_UP_POWER);
     }
 
     public void liftArmDown() {
-        // TODO: Stop the lift when it gets to the bottom
+        // TODO 5: Stop the lift when it gets to the bottom
+        // TODO 6: Slow the lift as it gets close to the bottom
         leftLiftMotor.setPower(-LIFT_MAX_DOWN_POWER);
         rightLiftMotor.setPower(-LIFT_MAX_DOWN_POWER);
     }
@@ -197,10 +186,6 @@ public class MechRobot {
         backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-    }
-
-    public int motorTicks() {
-        return 0;
     }
 
     public void stop() {

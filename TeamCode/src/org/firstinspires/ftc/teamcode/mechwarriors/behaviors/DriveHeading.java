@@ -8,13 +8,15 @@ public class DriveHeading extends Behavior {
     Telemetry telemetry;
     int heading;
     int distance;
+    double speed;
 
-    public DriveHeading(Telemetry telemetry, String name, MechRobot robot, int heading, int distance) {
+    public DriveHeading(Telemetry telemetry, String name, MechRobot robot, int heading, int distance, double speed) {
         this.robot = robot;
         this.telemetry = telemetry;
         this.name = name;
         this.heading = -heading;
         this.distance = distance;
+        this.speed = speed;
     }
 
     @Override
@@ -30,7 +32,7 @@ public class DriveHeading extends Behavior {
             telemetry.addData("robotHeading", robotHeading);
             double steeringCorrection = (robotHeading - heading) * 0.02;
             telemetry.addData("steeringCorrection", steeringCorrection);
-            robot.mecanumDrive(0, 0.5, steeringCorrection);
+            robot.mecanumDrive(0, speed, steeringCorrection);
         } else {
             robot.stop();
             isDone = true;
