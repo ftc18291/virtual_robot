@@ -2,15 +2,18 @@ package org.firstinspires.ftc.teamcode.mechwarriors.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import org.firstinspires.ftc.teamcode.mechwarriors.hardware.Claw;
 import org.firstinspires.ftc.teamcode.mechwarriors.hardware.MechRobot;
 
 @TeleOp(group = "MechWarriors")
 public class PowerPlayOpMode extends OpMode {
     MechRobot robot;
+    Claw claw;
 
     @Override
     public void init() {
         robot = new MechRobot(hardwareMap);
+        claw = robot.getClaw();
     }
 
     @Override
@@ -24,6 +27,8 @@ public class PowerPlayOpMode extends OpMode {
         telemetry.addData("y", y);
         telemetry.addData("rx", rx);
 
+        telemetry.addData("Lift ticks: ", robot.getLiftTicks());
+
         if (gamepad1.dpad_up) {
             robot.liftArmUp();
             telemetry.addData("Lift", "Up");
@@ -33,6 +38,14 @@ public class PowerPlayOpMode extends OpMode {
         } else {
             robot.liftArmStop();
             telemetry.addData("Lift", "Stop");
+        }
+
+        if (gamepad1.y) {
+            claw.close();
+            telemetry.addData("Claw", "Close");
+        } else {
+            claw.open();
+            telemetry.addData("Claw", "Open");
         }
     }
 }

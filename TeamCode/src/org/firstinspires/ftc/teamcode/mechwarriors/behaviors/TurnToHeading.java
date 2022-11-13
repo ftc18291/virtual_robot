@@ -4,9 +4,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.mechwarriors.hardware.MechRobot;
 
 public class TurnToHeading extends Behavior {
-
     MechRobot robot;
-    Telemetry telemetry;
     int desiredHeading;
 
     public TurnToHeading(Telemetry telemetry, String name, MechRobot robot, int heading) {

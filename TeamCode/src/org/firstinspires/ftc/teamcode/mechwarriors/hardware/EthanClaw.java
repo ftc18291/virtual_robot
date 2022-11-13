@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.mechwarriors.bkup;
+package org.firstinspires.ftc.teamcode.mechwarriors.hardware;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -25,7 +25,7 @@ public class EthanClaw implements Claw {
 
     @Override
     public void close() {
-        leftClawServo.setPosition(1.0);
-        rightClawServo.setPosition(1.0);
+        leftClawServo.setPosition(0.75);
+        rightClawServo.setPosition(0.75);
     }
 }

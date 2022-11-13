@@ -19,8 +19,21 @@ public class MechRobot {
     private final static double LIFT_SPOOL_TICKS_PER_ROTATION = LIFT_MOTOR_GEAR_RATIO * LIFT_MOTOR_TICKS_PER_ROTATION;
     private final static double LIFT_SPOOL_TICKS_PER_ONE_INCH = LIFT_SPOOL_CIRCUMFERENCE_IN / LIFT_SPOOL_TICKS_PER_ROTATION;
 
+    // Drive motors: 537.7 ticks per revolution
+    // Wheels 96mm diameter
+    private final static double DRIVE_WHEEL_DIAMETER_MM = 96;
+    private final static double DRIVE_WHEEL_DIAMETER_IN = DRIVE_WHEEL_DIAMETER_MM / Utilities.MILLIMETERS_PER_INCH;
+    private final static double DRIVE_WHEEL_CIRCUMFERENCE_IN = DRIVE_WHEEL_DIAMETER_IN * Math.PI;
+    private final static double DRIVE_WHEEL_TICKS_PER_ROTATION = 537.7;
+    private final static double DRIVE_WHEEL_TICKS_PER_ONE_INCH = DRIVE_WHEEL_CIRCUMFERENCE_IN / DRIVE_WHEEL_TICKS_PER_ROTATION;
+
+
     private final static double LIFT_MAX_UP_POWER = 0.5;
     private final static double LIFT_MAX_DOWN_POWER = 0.5;
+    private final static double LIFT_MIN_TICKS = 0;
+    private final static double LIFT_MAX_TICKS = 4500;
+    private final static double LIFT_SLOW_ZONE = 500;
+
 
     // Drive motors
     DcMotor frontRightMotor;
@@ -52,6 +65,7 @@ public class MechRobot {
         // Back Right Motor
         backRightMotor = hardwareMap.get(DcMotor.class, "back_right_motor");
 
+        setDriveMotorZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         resetMotorTicks();
 
         // Left Lift Motor
@@ -69,8 +83,7 @@ public class MechRobot {
 
         initIMU(hardwareMap);
 
-        // TODO 7: Create new claw instance
-        //claw = new ...;
+        claw = new EthanClaw(hardwareMap);
     }
 
     void initIMU(HardwareMap hardwareMap) {
@@ -113,10 +126,7 @@ public class MechRobot {
      * @return number of ticks
      */
     public double calculateDriveTicks(double distanceInInches) {
-        // TODO 1: Implement logic
-        // Drive motors: 537.7 ticks per revolution
-        // Wheels 96mm diameter
-        return 0.0;
+        return distanceInInches / DRIVE_WHEEL_TICKS_PER_ONE_INCH;
     }
 
     /**
@@ -125,10 +135,9 @@ public class MechRobot {
      * @return the average ticks
      */
     public double getDriveTicks() {
-        // TODO 2: Implement - calculate and return the average ticks for all drive motors
         // use getCurrentPosition method
-        int motorTicks = 0;
-        System.out.println("motor ticks: " + motorTicks);
+        double motorTicks = (frontLeftMotor.getCurrentPosition() + backLeftMotor.getCurrentPosition() + frontRightMotor.getCurrentPosition() + backRightMotor.getCurrentPosition()) / 4.0;
+        //System.out.println("motor ticks: " + motorTicks);
         return motorTicks;
     }
 
@@ -137,17 +146,27 @@ public class MechRobot {
     }
 
     public void liftArmUp() {
-        // TODO 3: Stop the lift when it gets to the max extension
-        // TODO 4: Slow the lift as it gets close to the max extension
-        leftLiftMotor.setPower(LIFT_MAX_UP_POWER);
-        rightLiftMotor.setPower(LIFT_MAX_UP_POWER);
+        if (leftLiftMotor.getCurrentPosition() >= LIFT_MAX_TICKS || rightLiftMotor.getCurrentPosition() >= LIFT_MAX_TICKS) {
+            liftArmStop();
+        } else if (leftLiftMotor.getCurrentPosition() >= (LIFT_MAX_TICKS - LIFT_SLOW_ZONE) || rightLiftMotor.getCurrentPosition() >= (LIFT_MAX_TICKS - LIFT_SLOW_ZONE)) {
+            leftLiftMotor.setPower(LIFT_MAX_UP_POWER * 0.5);
+            rightLiftMotor.setPower(LIFT_MAX_UP_POWER * 0.5);
+        } else {
+            leftLiftMotor.setPower(LIFT_MAX_UP_POWER);
+            rightLiftMotor.setPower(LIFT_MAX_UP_POWER);
+        }
     }
 
     public void liftArmDown() {
-        // TODO 5: Stop the lift when it gets to the bottom
-        // TODO 6: Slow the lift as it gets close to the bottom
-        leftLiftMotor.setPower(-LIFT_MAX_DOWN_POWER);
-        rightLiftMotor.setPower(-LIFT_MAX_DOWN_POWER);
+        if (leftLiftMotor.getCurrentPosition() <= LIFT_MIN_TICKS || rightLiftMotor.getCurrentPosition() <= LIFT_MIN_TICKS) {
+            liftArmStop();
+        } else if (leftLiftMotor.getCurrentPosition() <= LIFT_SLOW_ZONE || rightLiftMotor.getCurrentPosition() <= LIFT_SLOW_ZONE) {
+            leftLiftMotor.setPower(-LIFT_MAX_DOWN_POWER * 0.5);
+            rightLiftMotor.setPower(-LIFT_MAX_DOWN_POWER * 0.5);
+        } else {
+            leftLiftMotor.setPower(-LIFT_MAX_DOWN_POWER);
+            rightLiftMotor.setPower(-LIFT_MAX_DOWN_POWER);
+        }
     }
 
     public void liftArmStop() {
@@ -155,26 +174,19 @@ public class MechRobot {
         rightLiftMotor.setPower(0);
     }
 
-    /**
-     * @param junctionType type of junction
-     */
-    public void liftArmToJunctionHeight(JunctionType junctionType) {
-        // TODO: Implement
-        switch (junctionType) {
-            case GROUND:
-                break;
-            case LOW:
-                break;
-            case MEDIUM:
-                break;
-            case HIGH:
-                break;
-            default:
-        }
+    public double getLiftTicks() {
+        return (leftLiftMotor.getCurrentPosition() + rightLiftMotor.getCurrentPosition()) / 2.0;
     }
 
     public double calculateLiftTicks(double heightInInches) {
         return heightInInches / LIFT_SPOOL_TICKS_PER_ONE_INCH;
+    }
+
+    public void setDriveMotorZeroPowerBehavior(DcMotor.ZeroPowerBehavior zeroPowerBehavior) {
+        frontLeftMotor.setZeroPowerBehavior(zeroPowerBehavior);
+        backLeftMotor.setZeroPowerBehavior(zeroPowerBehavior);
+        frontRightMotor.setZeroPowerBehavior(zeroPowerBehavior);
+        backRightMotor.setZeroPowerBehavior(zeroPowerBehavior);
     }
 
     public void resetMotorTicks() {

@@ -3,10 +3,9 @@ package org.firstinspires.ftc.teamcode.mechwarriors.opmodes;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.mechwarriors.AllianceColor;
+import org.firstinspires.ftc.teamcode.mechwarriors.JunctionType;
 import org.firstinspires.ftc.teamcode.mechwarriors.StartingLocation;
-import org.firstinspires.ftc.teamcode.mechwarriors.behaviors.Behavior;
-import org.firstinspires.ftc.teamcode.mechwarriors.behaviors.DriveHeading;
-import org.firstinspires.ftc.teamcode.mechwarriors.behaviors.TurnToHeading;
+import org.firstinspires.ftc.teamcode.mechwarriors.behaviors.*;
 import org.firstinspires.ftc.teamcode.mechwarriors.hardware.MechRobot;
 
 import java.util.ArrayList;
@@ -52,6 +51,8 @@ public class PowerPlayAutoOpMode extends OpMode {
     public void start() {
 
         if (startingLocation == StartingLocation.FRONT && allianceColor == AllianceColor.BLUE) {
+            behaviors.add(new RaiseLift(telemetry, "raise lift to medium", robot, JunctionType.MEDIUM));
+            behaviors.add(new OpenClaw(telemetry, "raise lift to medium", robot.getClaw()));
             behaviors.add(new TurnToHeading(telemetry, "turn right to 90", robot, 90));
             behaviors.add(new DriveHeading(telemetry, "drive forward 1", robot, 90, 2000, 0.5));
         } else if (startingLocation == StartingLocation.BACK && allianceColor == AllianceColor.BLUE) {

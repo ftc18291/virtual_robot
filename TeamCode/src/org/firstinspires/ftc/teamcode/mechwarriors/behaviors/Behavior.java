@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode.mechwarriors.behaviors;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 public abstract class Behavior {
     String name;
+    Telemetry telemetry;
     boolean isDone = false;
 
     public abstract void start();

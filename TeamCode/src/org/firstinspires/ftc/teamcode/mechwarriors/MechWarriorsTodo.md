@@ -1,33 +1,16 @@
-1. Open hardware/MechRobot.java
-    1. Implement TODO 1 in calculateDriveTicks
-    2. Implement TODO 2 in getDriveTicks
-    3. Implement TODOs 3 & 4 in liftArmUp
-    4. Implement TODOs 5 & 6 in liftArmDown
-
-2. Look at Claw interface
-    1. Create a new class call EthanClaw that implements the Claw interface
-        1. In the constructor, setup the servos
-        
-                leftClawServo = hardwareMap.get(Servo.class, "left_claw_servo");
-                leftClawServo.setDirection(Servo.Direction.REVERSE);
-                rightClawServo = hardwareMap.get(Servo.class, "right_claw_servo");
-                leftClawServo.setPosition(0);
-                rightClawServo.setPosition(0);
-        2. In the open method
-        
-                leftClawServo.setPosition(0);
-                rightClawServo.setPosition(0);
-        3. In the close method
-        
-                leftClawServo.setPosition(1.0);
-                rightClawServo.setPosition(1.0);
-    2. In MechRobot.java, implement TODO 7
-    3. In the PowerPlayOpMode.java, move the claw
-    
-            if (gamepad1.y) {
-                claw.close();
-                telemetry.addData("Claw", "Close");
-            } else {
-                claw.open();
-                telemetry.addData("Claw", "Open");
-            }
+1. Implement the following Behaviors:
+    1. LowerLift
+        1. Lowers lift to bottom position
+    2. OpenClaw
+        1. Opens the claw. 
+        2. Waits 1 second for the claw to finish opening before setting isDone.
+            1. ElapsedTime: https://javadoc.io/doc/org.firstinspires.ftc/RobotCore/latest/com/qualcomm/robotcore/util/ElapsedTime.html
+    3. CloseClaw
+        1. Opens the claw. 
+        2. Waits 1 second for the claw to finish opening before setting isDone.
+    4. ReverseHeading
+        1. Drives in reverse on specified heading (see DriveHeading)
+    5. Translate
+        1. Drives the robot left or right a specified distance
+2. Create new class "LinearSlideLift"
+    1. Move lift functionality (methods, constants, etc.) from MechRobot to this new class

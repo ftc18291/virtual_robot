@@ -5,7 +5,6 @@ import org.firstinspires.ftc.teamcode.mechwarriors.hardware.MechRobot;
 
 public class DriveHeading extends Behavior {
     MechRobot robot;
-    Telemetry telemetry;
     int heading;
     int distance;
     double speed;
