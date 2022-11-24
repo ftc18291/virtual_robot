@@ -4,12 +4,12 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.mechwarriors.JunctionType;
 import org.firstinspires.ftc.teamcode.mechwarriors.hardware.MechRobot;
 
-public class RaiseLift extends Behavior {
+public class LowerLift extends Behavior {
     MechRobot robot;
     JunctionType junctionType;
     int ticks;
 
-    public RaiseLift(Telemetry telemetry, String name, MechRobot robot, JunctionType junctionType) {
+    public LowerLift(Telemetry telemetry, String name, MechRobot robot, JunctionType junctionType) {
         this.robot = robot;
         this.telemetry = telemetry;
         this.junctionType = junctionType;
@@ -31,6 +31,7 @@ public class RaiseLift extends Behavior {
         }
     }
 
+
     @Override
     public void start() {
         run();
@@ -38,11 +39,12 @@ public class RaiseLift extends Behavior {
 
     @Override
     public void run() {
-        if (robot.getLift().getLiftTicks() < ticks) {
-            robot.getLift().liftArmUp();
+        if (robot.getLift().getLiftTicks() > ticks) {
+            robot.getLift().liftArmDown();
         } else {
             robot.getLift().liftArmStop();
             this.isDone = true;
         }
     }
 }
+

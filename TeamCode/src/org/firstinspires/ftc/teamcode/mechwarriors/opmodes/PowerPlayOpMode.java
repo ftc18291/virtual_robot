@@ -27,16 +27,16 @@ public class PowerPlayOpMode extends OpMode {
         telemetry.addData("y", y);
         telemetry.addData("rx", rx);
 
-        telemetry.addData("Lift ticks: ", robot.getLiftTicks());
+        telemetry.addData("Lift ticks: ", robot.getLift().getLiftTicks());
 
         if (gamepad1.dpad_up) {
-            robot.liftArmUp();
+            robot.getLift().liftArmUp();
             telemetry.addData("Lift", "Up");
         } else if (gamepad1.dpad_down) {
-            robot.liftArmDown();
+            robot.getLift().liftArmDown();
             telemetry.addData("Lift", "Down");
         } else {
-            robot.liftArmStop();
+            robot.getLift().liftArmStop();
             telemetry.addData("Lift", "Stop");
         }
 

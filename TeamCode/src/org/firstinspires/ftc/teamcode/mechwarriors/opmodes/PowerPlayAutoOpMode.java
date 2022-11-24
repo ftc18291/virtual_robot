@@ -18,6 +18,7 @@ public class PowerPlayAutoOpMode extends OpMode {
 
     AllianceColor allianceColor = AllianceColor.BLUE;
     StartingLocation startingLocation = StartingLocation.FRONT;
+    SignalSide signalSide = SignalSide.ONE;
 
     List<Behavior> behaviors = new ArrayList<Behavior>();
     int state = 0;
@@ -45,19 +46,26 @@ public class PowerPlayAutoOpMode extends OpMode {
         telemetry.addLine("Select Location and Alliance Color");
         telemetry.addData("Starting Location", startingLocation);
         telemetry.addData("Alliance Color", allianceColor);
+        telemetry.addData("Signal Sign", signalSide);
     }
 
     @Override
     public void start() {
-
         if (startingLocation == StartingLocation.FRONT && allianceColor == AllianceColor.BLUE) {
+            if (signalSide == SignalSide.ONE) {
+
+            }
             behaviors.add(new RaiseLift(telemetry, "raise lift to medium", robot, JunctionType.MEDIUM));
-            behaviors.add(new OpenClaw(telemetry, "raise lift to medium", robot.getClaw()));
+            behaviors.add(new LowerLift(telemetry, "lower lift to medium", robot, JunctionType.GROUND));
+            behaviors.add(new OpenClaw(telemetry, "Opening Claw", robot.getClaw()));
+            behaviors.add(new CloseClaw(telemetry, "Closing Claw", robot.getClaw()));
+            behaviors.add(new OpenClaw(telemetry, "Opening Claw", robot.getClaw()));
             behaviors.add(new TurnToHeading(telemetry, "turn right to 90", robot, 90));
-            behaviors.add(new DriveHeading(telemetry, "drive forward 1", robot, 90, 2000, 0.5));
+            behaviors.add(new DriveHeading(telemetry, "drive forward 3", robot, 90, 4000, 0.5));
         } else if (startingLocation == StartingLocation.BACK && allianceColor == AllianceColor.BLUE) {
-            behaviors.add(new TurnToHeading(telemetry, "turn left to -90", robot, -90));
-            behaviors.add(new DriveHeading(telemetry, "drive forward 2", robot, -90, 3000, 1.0));
+            behaviors.add(new Translate(telemetry, "drive left 3", robot, 0, 3000, 0.5));
+            //behaviors.add(new TurnToHeading(telemetry, "turn left to -90", robot, -90));
+            behaviors.add(new ReverseHeading(telemetry, "drive backward 2", robot, 0, -3000, -1.0));
         } else if (startingLocation == StartingLocation.FRONT && allianceColor == AllianceColor.RED) {
             behaviors.add(new TurnToHeading(telemetry, "turn left to -180", robot, -180));
         } else if (startingLocation == StartingLocation.BACK && allianceColor == AllianceColor.RED) {
