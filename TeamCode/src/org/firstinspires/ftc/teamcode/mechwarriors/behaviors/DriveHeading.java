@@ -26,7 +26,10 @@ public class DriveHeading extends Behavior {
 
     @Override
     public void run() {
-        if (robot.getDriveTicks() < distance) {
+        double ticks = robot.getDriveTicks();
+        telemetry.addData("robot ticks", ticks);
+        telemetry.addData("distance", distance);
+        if (ticks <= distance) {
             double robotHeading = robot.getHeading();
             telemetry.addData("robotHeading", robotHeading);
             double steeringCorrection = (robotHeading - heading) * 0.02;

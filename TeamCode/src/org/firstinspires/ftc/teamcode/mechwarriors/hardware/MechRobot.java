@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.teamcode.mechwarriors.JunctionType;
 import org.firstinspires.ftc.teamcode.mechwarriors.Utilities;
 
 public class MechRobot {
@@ -102,8 +101,8 @@ public class MechRobot {
      * @param distanceInInches distance in inches
      * @return number of ticks
      */
-    public double calculateDriveTicks(double distanceInInches) {
-        return distanceInInches / DRIVE_WHEEL_TICKS_PER_ONE_INCH;
+    public int calculateDriveTicks(double distanceInInches) {
+        return (int) (distanceInInches / DRIVE_WHEEL_TICKS_PER_ONE_INCH);
     }
 
     /**
@@ -112,10 +111,10 @@ public class MechRobot {
      * @return the average ticks
      */
     public double getDriveTicks() {
-        // use getCurrentPosition method
-        double motorTicks = (frontLeftMotor.getCurrentPosition() + backLeftMotor.getCurrentPosition() + frontRightMotor.getCurrentPosition() + backRightMotor.getCurrentPosition()) / 4.0;
-        //System.out.println("motor ticks: " + motorTicks);
-        return motorTicks;
+        return (frontLeftMotor.getCurrentPosition() +
+                backLeftMotor.getCurrentPosition() +
+                frontRightMotor.getCurrentPosition() +
+                backRightMotor.getCurrentPosition()) / 4.0;
     }
 
     public double getHeading() {
@@ -123,11 +122,17 @@ public class MechRobot {
     }
 
     public double getTranslateDistance() {
-        double translatedistance = (Math.abs(frontLeftMotor.getCurrentPosition()) +
+        return (Math.abs(frontLeftMotor.getCurrentPosition()) +
                 Math.abs(backLeftMotor.getCurrentPosition()) +
                 Math.abs(frontRightMotor.getCurrentPosition() +
                         Math.abs(backRightMotor.getCurrentPosition()))) / 4.0;
-        return translatedistance;
+    }
+
+    public String getDriveTicksString() {
+        return "fl: " + frontLeftMotor.getCurrentPosition() + ", bl: " +
+                backLeftMotor.getCurrentPosition() + ", fr: " +
+                frontRightMotor.getCurrentPosition() + ", br: " +
+                backRightMotor.getCurrentPosition();
     }
 
     public void setDriveMotorZeroPowerBehavior(DcMotor.ZeroPowerBehavior zeroPowerBehavior) {

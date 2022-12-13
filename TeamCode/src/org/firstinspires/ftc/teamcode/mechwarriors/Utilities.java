@@ -10,7 +10,7 @@ public class Utilities {
      * @param input
      * @return
      */
-    public double squareInputWithSign(double input) {
+    public static double squareInputWithSign(double input) {
         double output = input * input;
         if (input < 0) {
             output = output * -1;

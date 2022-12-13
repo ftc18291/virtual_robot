@@ -17,7 +17,10 @@ public class LowerLift extends Behavior {
 
         switch (this.junctionType) {
             case GROUND:
-                ticks = 100;
+                ticks = 0;
+                break;
+            case TRAVEL:
+                ticks = 300;
                 break;
             case LOW:
                 ticks = 500;
@@ -26,7 +29,7 @@ public class LowerLift extends Behavior {
                 ticks = 2000;
                 break;
             case HIGH:
-                ticks = 5000;
+                ticks = 4200;
                 break;
         }
     }
