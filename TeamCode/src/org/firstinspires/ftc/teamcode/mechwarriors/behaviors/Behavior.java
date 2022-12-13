@@ -8,6 +8,7 @@ public abstract class Behavior {
     boolean isDone = false;
 
     public abstract void start();
+
     public abstract void run();
 
     public String getName() {

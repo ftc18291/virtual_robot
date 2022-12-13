@@ -17,16 +17,19 @@ public class RaiseLift extends Behavior {
 
         switch (this.junctionType) {
             case GROUND:
-                ticks = 100;
+                ticks = 0;
+                break;
+            case TRAVEL:
+                ticks = 300;
                 break;
             case LOW:
                 ticks = 500;
                 break;
             case MEDIUM:
-                ticks = 2000;
+                ticks = 1700;
                 break;
             case HIGH:
-                ticks = 5000;
+                ticks = 4000;
                 break;
         }
     }

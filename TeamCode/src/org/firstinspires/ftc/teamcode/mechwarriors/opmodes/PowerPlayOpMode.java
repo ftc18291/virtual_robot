@@ -9,19 +9,46 @@ import org.firstinspires.ftc.teamcode.mechwarriors.hardware.MechRobot;
 public class PowerPlayOpMode extends OpMode {
     MechRobot robot;
     Claw claw;
+    //TouchSensor liftBottomSensor;
+    boolean slowMode = false;
 
     @Override
     public void init() {
         robot = new MechRobot(hardwareMap);
         claw = robot.getClaw();
+        // liftBottomSensor = hardwareMap.get(TouchSensor.class, "lift_bottom_sensor");
     }
 
     @Override
     public void loop() {
 
+//        if (liftBottomSensor.isPressed()) {
+//            telemetry.addLine("lift at bottom");
+//        } else {
+//            telemetry.addLine("lift raised");
+//        }
+
+        if (gamepad1.left_bumper) {
+            slowMode = true;
+        }
+        if (gamepad1.right_bumper) {
+            slowMode = false;
+        }
+
         double y = -gamepad1.left_stick_y;
         double x = gamepad1.left_stick_x * 1.1;
         double rx = gamepad1.right_stick_x;
+
+        //y = Utilities.squareInputWithSign(y);
+        //x = Utilities.squareInputWithSign(x);
+        //rx = Utilities.squareInputWithSign(rx);
+
+        if (slowMode) {
+            x = x * 0.5;
+            y = y * 0.5;
+            rx = rx * 0.5;
+        }
+
         robot.mecanumDrive(x, y, rx);
         telemetry.addData("x", x);
         telemetry.addData("y", y);
@@ -29,10 +56,10 @@ public class PowerPlayOpMode extends OpMode {
 
         telemetry.addData("Lift ticks: ", robot.getLift().getLiftTicks());
 
-        if (gamepad1.dpad_up) {
+        if (gamepad2.dpad_up) {
             robot.getLift().liftArmUp();
             telemetry.addData("Lift", "Up");
-        } else if (gamepad1.dpad_down) {
+        } else if (gamepad2.dpad_down) {
             robot.getLift().liftArmDown();
             telemetry.addData("Lift", "Down");
         } else {
@@ -40,12 +67,14 @@ public class PowerPlayOpMode extends OpMode {
             telemetry.addData("Lift", "Stop");
         }
 
-        if (gamepad1.y) {
+        if (gamepad2.y) {
             claw.close();
             telemetry.addData("Claw", "Close");
-        } else {
+        } else if (gamepad2.x) {
             claw.open();
             telemetry.addData("Claw", "Open");
         }
+
+        telemetry.addData("Drive ticks", robot.getDriveTicksString());
     }
 }

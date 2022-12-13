@@ -5,8 +5,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.mechwarriors.Utilities;
 
 public class LinearSlideLift {
-    private final static double LIFT_MAX_UP_POWER = 0.5;
-    private final static double LIFT_MAX_DOWN_POWER = 0.5;
+    private final static double LIFT_MAX_UP_POWER = 1.0;
+    private final static double LIFT_MAX_DOWN_POWER = 1.0;
     private final static double LIFT_MIN_TICKS = 0;
     private final static double LIFT_MAX_TICKS = 4500;
     private final static double LIFT_SLOW_ZONE = 500;

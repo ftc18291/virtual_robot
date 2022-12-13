@@ -23,9 +23,9 @@ public class TurnToHeading extends Behavior {
     public void run() {
         double robotHeading = robot.getHeading();
 
-        if (!almostEqual(robotHeading, desiredHeading, 0.5)) {
+        if (!almostEqual(robotHeading, desiredHeading, 1.0)) {
             telemetry.addData("robotHeading", robotHeading);
-            double steeringCorrection = (robotHeading - desiredHeading) * 0.02;
+            double steeringCorrection = (robotHeading - desiredHeading) * 0.01;
             telemetry.addData("steeringCorrection", steeringCorrection);
             robot.mecanumDrive(0, 0, steeringCorrection);
         } else {
