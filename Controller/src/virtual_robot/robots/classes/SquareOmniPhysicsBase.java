@@ -22,37 +22,51 @@ import virtual_robot.controller.VirtualRobotController;
 import virtual_robot.util.AngleUtils;
 
 /**
- * For internal use only. Base class for a physics-based robot with four Omni wheels, color sensor,
+ * For internal use only. Base class for a physics-based robot with four mecanum wheels, color sensor,
  * four distance sensors, and a BNO055IMU.
  */
-public abstract class XDrivePhysicsBase extends VirtualBot {
+public abstract class SquareOmniPhysicsBase extends VirtualBot {
 
     public final MotorType MOTOR_TYPE;
     private DcMotorExImpl[] motors = null;
     private BNO055IMUImpl imu = null;
-    private BNO055IMUNew imuNew = null;
+    BNO055IMUNew imuNew = null;
     private VirtualRobotController.ColorSensorImpl colorSensor = null;
     private VirtualRobotController.DistanceSensorImpl[] distanceSensors = null;
 
-    private double wheelCircumference;
+    /*
+     * Gear ratio for any external gears added in drive train. For now, this is just 1.0. Could easily
+     * add a constructor to MecanumPhysicsBase that allows this to be set to some other value.
+     */
     protected double gearRatioWheel = 1.0;
-    protected double wheelBaseRadius;
 
-    private double[][] tWR; //Transform from wheel motion to robot motion (KINETIC MODEL)
+    /*
+     * Robot geometry, in pixels. These will be calculated in the initialize() method. They cannot be computed
+     * here, because botwidth is not known until the time of construction.
+     */
+    private double wheelCircumference;
+    private double interWheelWidth;
+    private double centerToWheel;
+
+    /*
+     * Transform from wheel motion to robot motion (KINETIC MODEL). This will be computed in the initialize()
+     * method, after basic robot geometry is computed.
+     */
+    private double[][] tWR;
 
     GeneralMatrixF M_ForceWheelToRobot; // Converts from individual wheel forces to total force/torque on robot
     MatrixF M_ForceRobotToWheel;  // Converts from total force/torque on robot to individual wheel forces
-    protected float maxWheelXForce; // Need to assign this in the initialize method.
+    protected float maxWheelForce; // Need to assign this in the initialize method.
 
     /**
      * No-param constructor. Uses the default motor type of Neverest 40
      */
-    public XDrivePhysicsBase() {
+    public SquareOmniPhysicsBase() {
         super();
-        MOTOR_TYPE = MotorType.Neverest40;
+        MOTOR_TYPE = MotorType.NeverestOrbital20;
     }
 
-    public XDrivePhysicsBase(MotorType driveMotorType){
+    public SquareOmniPhysicsBase(MotorType driveMotorType){
         super();
         MOTOR_TYPE = driveMotorType;
     }
@@ -61,10 +75,10 @@ public abstract class XDrivePhysicsBase extends VirtualBot {
         super.initialize();
         hardwareMap.setActive(true);
         motors = new DcMotorExImpl[]{
-                (DcMotorExImpl) hardwareMap.get(DcMotorEx.class, "back_left_motor"),
-                (DcMotorExImpl) hardwareMap.get(DcMotorEx.class, "front_left_motor"),
-                (DcMotorExImpl) hardwareMap.get(DcMotorEx.class, "front_right_motor"),
-                (DcMotorExImpl) hardwareMap.get(DcMotorEx.class, "back_right_motor")
+                (DcMotorExImpl) hardwareMap.get(DcMotorEx.class, "left_motor"),
+                (DcMotorExImpl) hardwareMap.get(DcMotorEx.class, "right_motor"),
+                (DcMotorExImpl) hardwareMap.get(DcMotorEx.class, "front_motor"),
+                (DcMotorExImpl) hardwareMap.get(DcMotorEx.class, "back_motor")
         };
         distanceSensors = new VirtualRobotController.DistanceSensorImpl[]{
                 hardwareMap.get(VirtualRobotController.DistanceSensorImpl.class, "front_distance"),
@@ -76,39 +90,51 @@ public abstract class XDrivePhysicsBase extends VirtualBot {
         imuNew = hardwareMap.get(BNO055IMUNew.class, "imu");
         colorSensor = (VirtualRobotController.ColorSensorImpl) hardwareMap.colorSensor.get("color_sensor");
         wheelCircumference = Math.PI * botWidth / 4.5;
+        interWheelWidth = botWidth * 8.0 / 9.0;
+        centerToWheel = interWheelWidth / 2.0;
 
-        double sqrt2 = Math.sqrt(2);
-        wheelBaseRadius = botWidth * (1.0/sqrt2 - 5.0/36.0);
-        float RRt2 = (float)(wheelBaseRadius * sqrt2 / VirtualField.PIXELS_PER_METER);
 
-        tWR = new double[][] {
-                {-0.25*sqrt2, 0.25*sqrt2, -0.25*sqrt2, 0.25*sqrt2},
-                {0.25*sqrt2, 0.25*sqrt2, 0.25*sqrt2, 0.25*sqrt2},
-                {-0.25/ wheelBaseRadius, -0.25/ wheelBaseRadius, 0.25/ wheelBaseRadius, 0.25/ wheelBaseRadius},
-                {-0.25, 0.25, 0.25, -0.25}
+        tWR = new double[][]{
+                {0, 0, -0.5, 0.5},
+                {-0.5, 0.5, 0, 0},
+                {0.25 / centerToWheel, 0.25 / centerToWheel, 0.25 / centerToWheel, 0.25 / centerToWheel},
+                {0.25, 0.25, -0.25, -0.25}
         };
 
+        /*
+         * Converts from the frictional X-component forces at each wheel to the X, Y forces, Torque, and "Fail"
+         * forces on the robot. (in the ROBOT coordinate system)
+         */
         M_ForceWheelToRobot = new GeneralMatrixF(4, 4, new float[]{
-                1, 1, 1, 1,
-                -1, 1, -1, 1,
-                RRt2, -RRt2, -RRt2, RRt2,
+                0, 0, -1, 1,
+                -1, 1, -0, 0,
+                (float)centerToWheel, (float)centerToWheel, (float)centerToWheel,(float)centerToWheel,
                 1, 1, -1, -1});
 
+        /*
+         * Converts from X & Y Forces, Torque, and "Fail" force on robot to the corresponding forces (X-component)
+         * at each wheel. (in the ROBOT coordinate system)
+         */
         M_ForceRobotToWheel = M_ForceWheelToRobot.inverted();
 
-        // Maximum possible frictional force (in robot-X direction) between field and any individual robot wheel.
+        // Maximum possible frictional force between field and any individual robot wheel.
         // Note the division by 4 (assumes each wheel gets 1/4 of robot mass) and the division by sqrt(2) (because
         // the X-direction force is 1/sqrt(2) times the total friction force on the wheel.
-        maxWheelXForce = (float)(9.8 * chassisBody.getMass().getMass()
-                * Config.FIELD_FRICTION_COEFF / (4.0 * Math.sqrt(2)));
+        maxWheelForce = (float)(9.8 * chassisBody.getMass().getMass()
+                * Config.FIELD_FRICTION_COEFF / 4.0);
 
         hardwareMap.setActive(false);
 
     }
 
+    /**
+     * Create the hardware map for this robot. This will include the drive motors, distance sensors, BNO055IMU,
+     * and color sensor. Child classes can override this method to add additional hardware. In that case,
+     * the first statement in the override method should be: super.createHardwareMap().
+     */
     protected void createHardwareMap() {
         hardwareMap = new HardwareMap();
-        String[] motorNames = new String[]{"back_left_motor", "front_left_motor", "front_right_motor", "back_right_motor"};
+        String[] motorNames = new String[]{"left_motor", "right_motor", "front_motor", "back_motor"};
         for (String name : motorNames) hardwareMap.put(name, new DcMotorExImpl(MOTOR_TYPE));
         String[] distNames = new String[]{"front_distance", "left_distance", "back_distance", "right_distance"};
         for (String name : distNames) hardwareMap.put(name, controller.new DistanceSensorImpl());
@@ -117,6 +143,16 @@ public abstract class XDrivePhysicsBase extends VirtualBot {
         hardwareMap.put("color_sensor", controller.new ColorSensorImpl());
     }
 
+    /**
+     * Update the position of the robot on the field, as well as the distance, BNO055IMU, and color sensors.
+     *
+     * Updating robot position involves:
+     *     1) Get new position and orientation from the dyn4j physics engine.
+     *     2) Using kinetic model, "preload" the chassis body with force and torque to be applied
+     *        during the next update of the physics engine.
+     *
+     * @param millis milliseconds since the previous update
+     */
     public synchronized void updateStateAndSensors(double millis) {
 
         /*
@@ -134,9 +170,7 @@ public abstract class XDrivePhysicsBase extends VirtualBot {
             wSpd[i] = motors[i].getVelocity(AngleUnit.RADIANS) * gearRatioWheel * wheelCircumference  / (2.0 * Math.PI);
             boolean mtRev = MOTOR_TYPE.REVERSED;
             boolean dirRev = motors[i].getDirection() == DcMotorSimple.Direction.REVERSE;
-            if (
-                    i<2 && (mtRev && dirRev || !mtRev && !dirRev) || i>=2 && (mtRev && !dirRev || !mtRev && dirRev)
-            ) wSpd[i] = -wSpd[i];
+            if (mtRev != dirRev) wSpd[i] = -wSpd[i];
         }
 
         /*
@@ -194,26 +228,25 @@ public abstract class XDrivePhysicsBase extends VirtualBot {
         // be the same as totalForce, but may want to add offsets to collision forces
         VectorF frictionForces = new VectorF(totalForce.get(0), totalForce.get(1), totalForce.get(2), totalForce.get(3));
 
-        // Determine the X-direction forces that would be required on each of the bot's four wheels to achieve
-        // the total frictional force and torque predicted by the kinematic model. Note that the magnitude of
-        // total force on each wheel is sqrt(2) times abs(x-direction force). (ROBOT coordinate system)
+        // Determine the magnitude (with sign) of force that would be required on each of the bot's four wheels to achieve
+        // the total frictional force and torque predicted by the kinematic model. (ROBOT coordinate system)
 
-        VectorF wheel_X_Forces = M_ForceRobotToWheel.multiplied(frictionForces);
+        VectorF wheelForces = M_ForceRobotToWheel.multiplied(frictionForces);
 
         //If any of the wheel forces exceeds the product of muStatic*mass*gravity, reduce the magnitude
         //of that force to muKinetic*mass*gravity, keeping the direction the same
 
         for (int i=0; i<4; i++){
-            float f = wheel_X_Forces.get(i);
-            if (Math.abs(f) > maxWheelXForce) {
-                wheel_X_Forces.put(i, maxWheelXForce * Math.signum(f));
+            float f = wheelForces.get(i);
+            if (Math.abs(f) > maxWheelForce) {
+                wheelForces.put(i, maxWheelForce * Math.signum(f));
             }
         }
 
         //Based on the adjusted forces at each wheel, determine net frictional force and torque on the bot,
         //Force is in ROBOT COORDINATE system
 
-        frictionForces = M_ForceWheelToRobot.multiplied(wheel_X_Forces);
+        frictionForces = M_ForceWheelToRobot.multiplied(wheelForces);
 
         // Convert these adjusted friction forces to WORLD COORDINATES  and put into the original
         // force and torque variables
@@ -250,6 +283,9 @@ public abstract class XDrivePhysicsBase extends VirtualBot {
 
     }
 
+    /**
+     * Display the robot in the current orientation and position.
+     */
     public synchronized void updateDisplay() {
         super.updateDisplay();
     }

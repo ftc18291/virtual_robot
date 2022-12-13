@@ -856,7 +856,7 @@ public class VirtualRobotController {
         }
 
         @Override
-        public double getDistance(DistanceUnit distanceUnit) {
+        public synchronized double getDistance(DistanceUnit distanceUnit) {
             return distanceUnit.fromCm(distanceCM);
         }
 
@@ -886,17 +886,22 @@ public class VirtualRobotController {
         }
 
         @Override
-        public NormalizedRGBA getNormalizedColors() {
-            return null;
+        public synchronized NormalizedRGBA getNormalizedColors() {
+            NormalizedRGBA nRGBA = new NormalizedRGBA();
+            nRGBA.red = red / 256.0f;
+            nRGBA.green = green / 256.0f;
+            nRGBA.blue = blue / 256.0f;
+            nRGBA.alpha = alpha / 256.0f;
+            return nRGBA;
         }
 
         @Override
-        public float getGain() {
+        public synchronized float getGain() {
             return (float) gain;
         }
 
         @Override
-        public void setGain(float newGain) {
+        public synchronized void setGain(float newGain) {
             gain = newGain;
         }
     }

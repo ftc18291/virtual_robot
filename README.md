@@ -1,7 +1,8 @@
 # A 2D simulator to help beginning Java programmers learn to program for FTC Robotics.
 
-New:  LED and Rumble capability added to the Virtual Gamepad, thanks to Alan Smith, FTC team 16072.
-    Rumble capability has now been added to the real gamepad(s) as well.
+New:  Updated to reflect changes in FTC SDK 8.1, with addition of the IMU interface, ImuOrientationOnRobot interface,
+    RevHubOrientationOnRobot class, and Quaternion class. All robot configurations have an imu which can be used
+    either with the old BNO055IMU interface, or with the new IMU interface.
 
 Field now changed to Power Play.
 
@@ -84,6 +85,11 @@ To use:
 
 
 LOG OF CHANGES
+
+CHANGES 12/7/2022
+    Added IMU interface, ImuOrientationOnRobot interface, RevHubOrientationOnRobot class, Quaternion class. Added
+    Square Omniwheel Robot configuration (omniwheels on the sides rather than corners)--This is disabled by default,
+    but can be re-enabled by un-commenting its Botconfig annotation.
 
 CHANGES 8/26/2022 
     Rumble and LED capability added to the Virtual Gamepad, thanks to Alan Smith, FTC 16072. Also, fixed the invert
