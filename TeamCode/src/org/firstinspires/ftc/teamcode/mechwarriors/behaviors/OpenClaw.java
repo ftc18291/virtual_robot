@@ -9,9 +9,9 @@ public class OpenClaw extends Behavior {
     ElapsedTime timer;
     final static int PAUSE_TIME = 1000;
 
-    public OpenClaw(Telemetry telemetry, String name, Claw claw) {
+    public OpenClaw(Telemetry telemetry, Claw claw) {
         this.telemetry = telemetry;
-        this.name = name;
+        this.name = "Open Claw";
         this.claw = claw;
         timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     }

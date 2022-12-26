@@ -9,24 +9,16 @@ import org.firstinspires.ftc.teamcode.mechwarriors.hardware.MechRobot;
 public class PowerPlayOpMode extends OpMode {
     MechRobot robot;
     Claw claw;
-    //TouchSensor liftBottomSensor;
     boolean slowMode = false;
 
     @Override
     public void init() {
         robot = new MechRobot(hardwareMap);
         claw = robot.getClaw();
-        // liftBottomSensor = hardwareMap.get(TouchSensor.class, "lift_bottom_sensor");
     }
 
     @Override
     public void loop() {
-
-//        if (liftBottomSensor.isPressed()) {
-//            telemetry.addLine("lift at bottom");
-//        } else {
-//            telemetry.addLine("lift raised");
-//        }
 
         if (gamepad1.left_bumper) {
             slowMode = true;

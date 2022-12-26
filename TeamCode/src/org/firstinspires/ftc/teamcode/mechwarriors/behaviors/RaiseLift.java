@@ -7,31 +7,12 @@ import org.firstinspires.ftc.teamcode.mechwarriors.hardware.MechRobot;
 public class RaiseLift extends Behavior {
     MechRobot robot;
     JunctionType junctionType;
-    int ticks;
 
-    public RaiseLift(Telemetry telemetry, String name, MechRobot robot, JunctionType junctionType) {
+    public RaiseLift(Telemetry telemetry, MechRobot robot, JunctionType junctionType) {
         this.robot = robot;
         this.telemetry = telemetry;
         this.junctionType = junctionType;
-        this.name = name;
-
-        switch (this.junctionType) {
-            case GROUND:
-                ticks = 0;
-                break;
-            case TRAVEL:
-                ticks = 300;
-                break;
-            case LOW:
-                ticks = 500;
-                break;
-            case MEDIUM:
-                ticks = 1700;
-                break;
-            case HIGH:
-                ticks = 4000;
-                break;
-        }
+        this.name = "Raise Lift = [Junction Type: " + junctionType + "]";
     }
 
     @Override
@@ -41,7 +22,7 @@ public class RaiseLift extends Behavior {
 
     @Override
     public void run() {
-        if (robot.getLift().getLiftTicks() < ticks) {
+        if (robot.getLift().getLiftTicks() < junctionType.getTicks()) {
             robot.getLift().liftArmUp();
         } else {
             robot.getLift().liftArmStop();

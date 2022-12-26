@@ -7,10 +7,10 @@ public class TurnToHeading extends Behavior {
     MechRobot robot;
     int desiredHeading;
 
-    public TurnToHeading(Telemetry telemetry, String name, MechRobot robot, int heading) {
+    public TurnToHeading(Telemetry telemetry, MechRobot robot, int heading) {
         this.robot = robot;
         this.telemetry = telemetry;
-        this.name = name;
+        this.name = "Turn to Heading = [heading: " + heading + "°]";
         this.desiredHeading = -heading;
     }
 

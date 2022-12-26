@@ -1,14 +1,13 @@
 package org.firstinspires.ftc.teamcode.mechwarriors.hardware;
 
-
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.mechwarriors.SignalSide;
 
-public class NominalSignalDetector {
+public class NominalSignalDetector implements SignalDetector {
 
-    private final HardwareMap hardwareMap;
-    private final Telemetry telemetry;
+    private HardwareMap hardwareMap;
+    private Telemetry telemetry;
 
     public NominalSignalDetector(Telemetry telemetry, HardwareMap hardwareMap) {
         this.telemetry = telemetry;
@@ -16,6 +15,7 @@ public class NominalSignalDetector {
     }
 
     public SignalSide detect() {
+
         return SignalSide.NONE;
     }
 }

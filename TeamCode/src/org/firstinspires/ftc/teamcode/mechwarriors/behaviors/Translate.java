@@ -9,10 +9,10 @@ public class Translate extends Behavior {
     int distance;
     double speed;
 
-    public Translate(Telemetry telemetry, String name, MechRobot robot, int heading, int distance, double speed) {
+    public Translate(Telemetry telemetry, MechRobot robot, int heading, int distance, double speed) {
         this.robot = robot;
         this.telemetry = telemetry;
-        this.name = name;
+        this.name = "Translate = [distance: " + distance + "] [heading: " + heading + "] [speed: " + speed + "]";
         this.heading = -heading;
         this.distance = distance;
         this.speed = speed;

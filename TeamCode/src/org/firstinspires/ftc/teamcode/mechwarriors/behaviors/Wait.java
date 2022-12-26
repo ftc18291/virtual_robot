@@ -8,10 +8,11 @@ public class Wait extends Behavior {
     ElapsedTime timer;    // todo: write your code here
     int delayMilliseconds;
 
-    public Wait(Telemetry telemetry, String name, int delayMilliseconds) {
+    public Wait(Telemetry telemetry, int delayMilliseconds) {
         timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         this.delayMilliseconds = delayMilliseconds;
         this.telemetry = telemetry;
+        this.name = "Wait = [" + delayMilliseconds + " ms]";
     }
 
     public void start() {
@@ -20,7 +21,7 @@ public class Wait extends Behavior {
 
     public void run() {
         if (timer.milliseconds() >= delayMilliseconds) {
-            telemetry.addData("Waiting", timer.milliseconds());
+            telemetry.addData("Elapsed ms: ", timer.milliseconds());
             this.isDone = true;
         }
     }

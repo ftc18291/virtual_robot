@@ -9,10 +9,10 @@ public class ReverseHeading extends Behavior {
     int distance;
     double speed;
 
-    public ReverseHeading(Telemetry telemetry, String name, MechRobot robot, int heading, int distance, double speed) {
+    public ReverseHeading(Telemetry telemetry, MechRobot robot, int heading, int distance, double speed) {
         this.robot = robot;
         this.telemetry = telemetry;
-        this.name = name;
+        this.name = "Reverse Heading = [heading: " + heading + "°] [distance: " + distance + "] [speed: " + speed + "]";
         this.heading = heading;
         this.distance = distance;
         this.speed = speed;
