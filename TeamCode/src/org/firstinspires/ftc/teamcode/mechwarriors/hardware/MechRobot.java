@@ -1,8 +1,11 @@
 package org.firstinspires.ftc.teamcode.mechwarriors.hardware;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -28,10 +31,12 @@ public class MechRobot {
 
 
     // IMU
-    BNO055IMU imu;
+    //BNO055IMU imu;
+    IMU imu;
 
     Claw claw;
     LinearSlideLift lift;
+    JunctionDetectionSenorArray junctionDetectionSenorArray;
 
     public MechRobot(HardwareMap hardwareMap) {
         // Front Left Motor
@@ -51,14 +56,15 @@ public class MechRobot {
         setDriveMotorZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         resetMotorTicks();
 
-
+        // initIMU(hardwareMap);
         initIMU(hardwareMap);
 
         claw = new EthanClaw(hardwareMap);
         lift = new LinearSlideLift(hardwareMap);
+        junctionDetectionSenorArray = new JunctionDetectionSenorArray(hardwareMap);
     }
 
-    void initIMU(HardwareMap hardwareMap) {
+    /*void initIMU(HardwareMap hardwareMap) {
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.accelerationIntegrationAlgorithm = null;
@@ -69,6 +75,14 @@ public class MechRobot {
         parameters.loggingEnabled = false;
         parameters.loggingTag = "IMU";
         imu.initialize(parameters);
+    }*/
+
+    void initIMU(HardwareMap hardwareMap) {
+        imu = hardwareMap.get(IMU.class, "imu");
+        IMU.Parameters parameters = new IMU.Parameters(
+                new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
+                        RevHubOrientationOnRobot.UsbFacingDirection.UP));
+        imu.initialize(parameters);
     }
 
     public Claw getClaw() {
@@ -77,6 +91,10 @@ public class MechRobot {
 
     public LinearSlideLift getLift() {
         return lift;
+    }
+
+    public JunctionDetectionSenorArray getJunctionDetectionSenorArray() {
+        return junctionDetectionSenorArray;
     }
 
     public void drive(double powerFrontRight, double powerFrontLeft, double powerBackLeft, double powerBackRight) {
@@ -118,20 +136,35 @@ public class MechRobot {
     }
 
     public double getHeading() {
-        return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+        return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+        //return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+    }
+
+    public double getPitchAngle() {
+        return imu.getRobotYawPitchRollAngles().getPitch(AngleUnit.DEGREES);
+        //return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).thirdAngle;
+    }
+
+    public double getRollAngle() {
+        return imu.getRobotYawPitchRollAngles().getRoll(AngleUnit.DEGREES);
+        //return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).secondAngle;
+    }
+
+    public void resetYaw() {
+        imu.resetYaw();
     }
 
     public double getTranslateDistance() {
-        return (Math.abs(frontLeftMotor.getCurrentPosition()) +
-                Math.abs(backLeftMotor.getCurrentPosition()) +
-                Math.abs(frontRightMotor.getCurrentPosition() +
-                        Math.abs(backRightMotor.getCurrentPosition()))) / 4.0;
+        return (Math.abs(frontLeftMotor.getCurrentPosition()) / 4 +
+                Math.abs(backLeftMotor.getCurrentPosition()) / 4+
+                Math.abs(frontRightMotor.getCurrentPosition()) / 4+
+                Math.abs(backRightMotor.getCurrentPosition())) / 4;
     }
 
     public String getDriveTicksString() {
-        return "fl: " + frontLeftMotor.getCurrentPosition() + ", bl: " +
-                backLeftMotor.getCurrentPosition() + ", fr: " +
-                frontRightMotor.getCurrentPosition() + ", br: " +
+        return "fl: " + frontLeftMotor.getCurrentPosition() + "\nbl: " +
+                backLeftMotor.getCurrentPosition() + "\nfr: " +
+                frontRightMotor.getCurrentPosition() + "\nbr: " +
                 backRightMotor.getCurrentPosition();
     }
 
@@ -156,4 +189,6 @@ public class MechRobot {
     public void stop() {
         this.drive(0, 0, 0, 0);
     }
+
+
 }
