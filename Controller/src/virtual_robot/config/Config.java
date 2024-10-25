@@ -2,6 +2,7 @@ package virtual_robot.config;
 
 import javafx.scene.image.Image;
 import virtual_robot.controller.Game;
+import virtual_robot.games.CenterStage;
 import virtual_robot.games.FreightFrenzy;
 import virtual_robot.games.NoGame;
 import virtual_robot.games.UltimateGoal;
@@ -31,7 +32,7 @@ public class Config {
     /**
      * The image object for the field.
      */
-    public static final Image BACKGROUND = new Image("/virtual_robot/assets/power_play648.bmp");
+    public static final Image BACKGROUND = new Image("/virtual_robot/assets/into_the_deep648.bmp");
 
     /**
      * If true, Virtual Gamepad joysticks and triggers will stay in the position where they were

@@ -121,7 +121,7 @@ public class FreightBot extends MecanumPhysicsBase implements ControlsElements {
 
     private CategoryFilter ARM_FILTER = new CategoryFilter(Filters.ARM,
             Filters.MASK_ALL & ~Barrier.BARRIER_CATEGORY & ~ShippingHub.HUB_CATEGORY
-                    & ~Filters.CHASSIS & ~Filters.ARM);
+                    & ~Filters.CHASSIS & ~Filters.ARM & ~Backdrop.BACKDROP_CATEGORY);
 
     private CategoryFilter ROTOR_FILTER = new CategoryFilter(Carousel.CAROUSEL_SPINNER_CATEGORY, Carousel.CAROUSEL_CATEGORY);
 
@@ -244,13 +244,13 @@ public class FreightBot extends MecanumPhysicsBase implements ControlsElements {
         super.createHardwareMap();
 
         //Add the arm motor using HardwareMap.put(...) method
-        hardwareMap.put("arm_motor", new DcMotorExImpl(MotorType.Neverest40));
+        hardwareMap.put("arm_motor", new DcMotorExImpl(MotorType.Neverest40, motorController1, 0));
 
         //Add the ServoImpl object
         hardwareMap.put("hand_servo", new ServoImpl());
 
         //Add the Rotor motor
-        hardwareMap.put("rotor_motor", new DcMotorExImpl(MotorType.Neverest40));
+        hardwareMap.put("rotor_motor", new DcMotorExImpl(MotorType.Neverest40, motorController1, 1));
     }
 
     /**

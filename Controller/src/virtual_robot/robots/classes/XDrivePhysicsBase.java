@@ -2,6 +2,7 @@ package virtual_robot.robots.classes;
 
 import com.qualcomm.hardware.bosch.BNO055IMUImpl;
 import com.qualcomm.hardware.bosch.BNO055IMUNew;
+import com.qualcomm.hardware.digitalchickenlabs.OctoQuadImpl;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorExImpl;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -33,6 +34,7 @@ public abstract class XDrivePhysicsBase extends VirtualBot {
     private BNO055IMUNew imuNew = null;
     private VirtualRobotController.ColorSensorImpl colorSensor = null;
     private VirtualRobotController.DistanceSensorImpl[] distanceSensors = null;
+    protected OctoQuadImpl octoQuad = null;
 
     private double wheelCircumference;
     protected double gearRatioWheel = 1.0;
@@ -75,6 +77,12 @@ public abstract class XDrivePhysicsBase extends VirtualBot {
         imu = hardwareMap.get(BNO055IMUImpl.class, "imu");
         imuNew = hardwareMap.get(BNO055IMUNew.class, "imu");
         colorSensor = (VirtualRobotController.ColorSensorImpl) hardwareMap.colorSensor.get("color_sensor");
+
+        octoQuad = hardwareMap.get(OctoQuadImpl.class, "octoquad");
+        for (int i=0; i<4; i++){
+            octoQuad.setEncoder(i, motors[i]);
+        }
+
         wheelCircumference = Math.PI * botWidth / 4.5;
 
         double sqrt2 = Math.sqrt(2);
@@ -109,12 +117,15 @@ public abstract class XDrivePhysicsBase extends VirtualBot {
     protected void createHardwareMap() {
         hardwareMap = new HardwareMap();
         String[] motorNames = new String[]{"back_left_motor", "front_left_motor", "front_right_motor", "back_right_motor"};
-        for (String name : motorNames) hardwareMap.put(name, new DcMotorExImpl(MOTOR_TYPE));
+        for (int i=0; i<4; i++){
+            hardwareMap.put(motorNames[i], new DcMotorExImpl(MOTOR_TYPE, motorController0, i));
+        }
         String[] distNames = new String[]{"front_distance", "left_distance", "back_distance", "right_distance"};
         for (String name : distNames) hardwareMap.put(name, controller.new DistanceSensorImpl());
         hardwareMap.put("imu", new BNO055IMUImpl(this, 10));
         hardwareMap.put("imu", new BNO055IMUNew(this, 10));
         hardwareMap.put("color_sensor", controller.new ColorSensorImpl());
+        hardwareMap.put("octoquad", new OctoQuadImpl());
     }
 
     public synchronized void updateStateAndSensors(double millis) {

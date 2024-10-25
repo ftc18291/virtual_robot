@@ -59,6 +59,10 @@ public class MecanumBot extends MecanumPhysicsBase {
         rightEncoder = hardwareMap.get(DeadWheelEncoder.class, "enc_right");
         xEncoder = hardwareMap.get(DeadWheelEncoder.class, "enc_x");
 
+        octoQuad.setEncoder(4, leftEncoder);
+        octoQuad.setEncoder(5, rightEncoder);
+        octoQuad.setEncoder(6, xEncoder);
+
         //Dimensions in pixels
         encoderWheelRadius = 0.5 * ENCODER_WHEEL_DIAMETER * botWidth / 18.0;
         leftEncoderX = LEFT_ENCODER_X * botWidth / 18.0;
@@ -74,7 +78,9 @@ public class MecanumBot extends MecanumPhysicsBase {
         encoderMotorType = MotorType.Neverest40;
         hardwareMap.put("back_servo", new ServoImpl());
         String[] encoderNames = new String[] {"enc_right", "enc_left", "enc_x"};
-        for (String name: encoderNames) hardwareMap.put(name, new DeadWheelEncoder(encoderMotorType));
+        for (int i=0; i<3; i++){
+            hardwareMap.put(encoderNames[i], new DeadWheelEncoder(MOTOR_TYPE, motorController1, i));
+        }
     }
 
     public synchronized void updateStateAndSensors(double millis){
