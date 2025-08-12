@@ -1,15 +1,14 @@
 package virtual_robot.robots.classes;
 
-import com.qualcomm.robotcore.hardware.*;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorExImpl;
+import com.qualcomm.robotcore.hardware.ServoImpl;
 import com.qualcomm.robotcore.hardware.configuration.MotorType;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.shape.Arc;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Rotate;
-import javafx.scene.transform.Transform;
 import virtual_robot.controller.BotConfig;
-import virtual_robot.util.AngleUtils;
 
 /**
  * For internal use only. Represents a robot with four mecanum wheels, color sensor, four distance sensors,
@@ -17,8 +16,8 @@ import virtual_robot.util.AngleUtils;
  * <p>
  * MechWarriorsPowerPlayMecanumBot is the controller class for the "mech_warriors_powerplay_mecanum_bot.fxml" markup file.
  */
-@BotConfig(name = "Mech Warriors PowerPlay Bot", filename = "mech_warriors_powerplay_mecanum_bot")
-public class MechWarriorsPowerPlayMecanumBot extends MecanumPhysicsBase {
+@BotConfig(name = "Mech Warriors PowerPlay Bot", filename = "mech_warriors_intothedeep_mecanum_bot")
+public class MechWarriorsIntoTheDeepMecanumBot extends MecanumPhysicsBase {
 
     private ServoImpl leftClawServo = null;
     private ServoImpl rightClawServo = null;
@@ -36,7 +35,7 @@ public class MechWarriorsPowerPlayMecanumBot extends MecanumPhysicsBase {
     @FXML
     Arc rightLiftMotorCircle;
 
-    public MechWarriorsPowerPlayMecanumBot() {
+    public MechWarriorsIntoTheDeepMecanumBot() {
         super();
     }
 

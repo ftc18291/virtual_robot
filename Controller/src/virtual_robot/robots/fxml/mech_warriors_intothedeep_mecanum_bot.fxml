@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.*?>
+<?import javafx.scene.shape.*?>
+
+<Group xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="virtual_robot.robots.classes.MechWarriorsPowerPlayMecanumBot">
+    <children>
+        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="YELLOW" height="75.0" stroke="BLACK" strokeType="INSIDE" width="75.0" />
+        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="BLUE" height="20.0" stroke="BLACK" strokeType="INSIDE" width="10.0" y="55.0" />
+        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="BLUE" height="20.0" stroke="BLACK" strokeType="INSIDE" width="10.0" />
+        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="BLUE" height="20.0" stroke="BLACK" strokeType="INSIDE" width="10.0" x="65.0" />
+        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="BLUE" height="20.0" stroke="BLACK" strokeType="INSIDE" width="10.0" x="65.0" y="55.0" />
+        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#bdcedd" height="10.0" layoutX="10.0" layoutY="21.0" stroke="BLACK" strokeType="INSIDE" width="10.0" />
+        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#bdcedd" height="10.0" layoutX="55.0" layoutY="21.0" stroke="BLACK" strokeType="INSIDE" width="10.0" />
+        <Line endX="37.0" endY="27.0" startX="37.0" startY="8.0" stroke="#7c7c7c" strokeWidth="5.0" />
+        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#bdcedd" height="4.0" layoutX="20.0" layoutY="26.0" stroke="BLACK" strokeType="INSIDE" width="35.0" />
+        <Rectangle fx:id="leftClaw" arcHeight="5.0" arcWidth="5.0" fill="#1d374f" height="5.0" layoutX="27.0" layoutY="2.0" stroke="BLACK" strokeType="INSIDE" width="20.0" />
+        <Rectangle fx:id="rightClaw" arcHeight="5.0" arcWidth="5.0" fill="#1d374f" height="5.0" layoutX="27.0" layoutY="6.0" stroke="BLACK" strokeType="INSIDE" width="20.0" />
+      <Arc fx:id="leftLiftMotorCircle" fill="#ff5e1f" layoutX="15.0" layoutY="26.0" length="270.0" radiusX="5.0" radiusY="5.0" startAngle="270.0" stroke="BLACK" strokeType="INSIDE" type="ROUND" />
+        <Arc fx:id="rightLiftMotorCircle" fill="#ff5e1f" layoutX="60.0" layoutY="26.0" length="270.0" radiusX="5.0" radiusY="5.0" startAngle="270.0" stroke="BLACK" strokeType="INSIDE" type="ROUND" />
+        <Circle fill="#f61fff" layoutX="37.0" layoutY="6.0" radius="5.0" stroke="BLACK" strokeType="INSIDE" />
+        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#acafb2" height="40.0" layoutX="32.0" layoutY="30.0" stroke="BLACK" strokeType="INSIDE" width="10.0" />
+      <Group fx:id="leftHangMotor" layoutX="20.0" layoutY="35.0">
+         <children>
+            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#010101" height="20.0" stroke="BLACK" strokeType="INSIDE" width="10.0" />
+            <Arc fx:id="leftHangMotorCircle" fill="#ff5e1f" layoutX="5.0" layoutY="5.0" length="270.0" radiusX="5.0" radiusY="5.0" startAngle="270.0" stroke="BLACK" strokeType="INSIDE" type="ROUND" />
+         </children>
+      </Group>
+        <Group fx:id="rightHangMotor" layoutX="44.0" layoutY="35.0">
+            <children>
+                <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#010101" height="20.0" stroke="BLACK" strokeType="INSIDE" width="10.0" />
+                <Arc fx:id="rightHangMotorCircle" fill="#ff5e1f" layoutX="5.0" layoutY="5.0" length="270.0" radiusX="5.0" radiusY="5.0" startAngle="270.0" stroke="BLACK" strokeType="INSIDE" type="ROUND" />
+            </children>
+        </Group>
+    </children>
+</Group>
