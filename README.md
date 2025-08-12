@@ -1,9 +1,18 @@
 # A 2D simulator to help beginning Java programmers learn to program for FTC Robotics.
 
-New:  
+New: 
 
-SparFunOTOS Odometry Sensor added. It is included in the robot configurations with Mecanum drivetrains,
-but can be easily added to other drivetrains.
+Support for Pedro-Pathing added. Currently set up to use Pinpoint localization with either
+the Mecanum Bot configuration or the new MecDynamic Bot configuration. If using Mecanum Bot
+config, behavior may be improved by adding a little inertia (~25%) with the inertia slider.
+
+New MecDynamic Bot configuration: a mecanum configuration with a more realistic dynamics 
+model than the existing Mecanum configuration. This is added to provide more realistic behavior 
+with Pedro-Pathing, but you can use either MecDynamic or the original Mecanum config.
+
+GoBilda Pinpoint odometry sensor added. It is included in Mecanum and XDrive robots. ("pinpoint" in config file)
+
+SparFunOTOS Odometry Sensor added. It is included in Mecanum and XDrive robots. ("sensor_otos" in config file)
 
 OctoQuad Encoder Sensor added. It is included in the Mecanum and XDrive robot configurations, with channels
 assigned as follows: 0->back left drive motor; 1->front left drive motor; 2->front right drive motor;
@@ -17,7 +26,7 @@ Includes Programming Board configuration to serve as a companion to the book "Le
 PDF can be [downloaded for free](https://github.com/alan412/LearnJavaForFTC) or you can purchase the paperback on
 [Amazon](https://www.amazon.com/dp/B08DBVKXLZ).
     
-![](/readme_image.jpg)
+![](/readme_gif.gif)
 
 This is a JavaFX application developed using the (free) IntelliJ IDEA Community Edition IDE. The repository can be downloaded
 and unzipped, then opened with IntelliJ. It can also be run using Android Studio 

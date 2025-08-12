@@ -1,13 +1,17 @@
 package virtual_robot.robots.classes;
 
+import com.qualcomm.hardware.CommonOdometry;
 import com.qualcomm.hardware.bosch.BNO055IMUImpl;
 import com.qualcomm.hardware.bosch.BNO055IMUNew;
 import com.qualcomm.hardware.digitalchickenlabs.OctoQuadImpl;
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriverInternal;
+import com.qualcomm.hardware.sparkfun.SparkFunOTOSInternal;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorExImpl;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.configuration.MotorType;
+import javafx.scene.input.MouseEvent;
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
@@ -15,6 +19,8 @@ import org.firstinspires.ftc.robotcore.external.matrices.GeneralMatrixF;
 import org.firstinspires.ftc.robotcore.external.matrices.MatrixF;
 import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import virtual_robot.config.Config;
 import virtual_robot.controller.Filters;
 import virtual_robot.controller.VirtualBot;
@@ -32,6 +38,9 @@ public abstract class XDrivePhysicsBase extends VirtualBot {
     private DcMotorExImpl[] motors = null;
     private BNO055IMUImpl imu = null;
     private BNO055IMUNew imuNew = null;
+    CommonOdometry odo = CommonOdometry.getInstance();
+    private SparkFunOTOSInternal sparkFunOTOSInternal = null;
+    private GoBildaPinpointDriverInternal goBildaPinpointDriverInternal = null;
     private VirtualRobotController.ColorSensorImpl colorSensor = null;
     private VirtualRobotController.DistanceSensorImpl[] distanceSensors = null;
     protected OctoQuadImpl octoQuad = null;
@@ -77,6 +86,9 @@ public abstract class XDrivePhysicsBase extends VirtualBot {
         imu = hardwareMap.get(BNO055IMUImpl.class, "imu");
         imuNew = hardwareMap.get(BNO055IMUNew.class, "imu");
         colorSensor = (VirtualRobotController.ColorSensorImpl) hardwareMap.colorSensor.get("color_sensor");
+
+        sparkFunOTOSInternal = hardwareMap.get(SparkFunOTOSInternal.class, "sensor_otos");
+        goBildaPinpointDriverInternal = hardwareMap.get(GoBildaPinpointDriverInternal.class, "pinpoint");
 
         octoQuad = hardwareMap.get(OctoQuadImpl.class, "octoquad");
         for (int i=0; i<4; i++){
@@ -125,6 +137,8 @@ public abstract class XDrivePhysicsBase extends VirtualBot {
         hardwareMap.put("imu", new BNO055IMUImpl(this, 10));
         hardwareMap.put("imu", new BNO055IMUNew(this, 10));
         hardwareMap.put("color_sensor", controller.new ColorSensorImpl());
+        hardwareMap.put("sensor_otos", new SparkFunOTOSInternal());
+        hardwareMap.put("pinpoint", new GoBildaPinpointDriverInternal());
         hardwareMap.put("octoquad", new OctoQuadImpl());
     }
 
@@ -133,9 +147,19 @@ public abstract class XDrivePhysicsBase extends VirtualBot {
         /*
          * Get updated position and heading from the dyn4j body (chassisBody)
          */
-        x = chassisBody.getTransform().getTranslationX() * VirtualField.PIXELS_PER_METER;
-        y = chassisBody.getTransform().getTranslationY() * VirtualField.PIXELS_PER_METER;
+        double xMeters = chassisBody.getTransform().getTranslationX();
+        double yMeters = chassisBody.getTransform().getTranslationY();
+        x = xMeters * VirtualField.PIXELS_PER_METER;
+        y = yMeters * VirtualField.PIXELS_PER_METER;
         headingRadians = chassisBody.getTransform().getRotationAngle();
+
+        /*
+         * Get updated velocities (for use by the SparkFunOTOS sensor)
+         */
+        Vector2 velocityMetersPerSec = chassisBody.getLinearVelocity();
+        double vxMetersPerSec = velocityMetersPerSec.x;
+        double vyMetersPerSec = velocityMetersPerSec.y;
+        double angularVelocityRadiansPerSec = chassisBody.getAngularVelocity();
 
         // Compute new wheel speeds in pixel units per second
 
@@ -244,10 +268,22 @@ public abstract class XDrivePhysicsBase extends VirtualBot {
         chassisBody.applyTorque(torque);
 
         /*
+         * Compute linear and angular acceleration for use by SparkFunOTOS (World Coordinates)
+         */
+        Vector2 accelMetersPerSecSqr = force.quotient(chassisBody.getMass().getMass());
+        double angularAccelRadiansPerSecSqr = torque / chassisBody.getMass().getInertia();
+
+        /*
          * Update the sensors
          */
         imu.updateHeadingRadians(headingRadians);
         imuNew.updateHeadingRadians(headingRadians);
+        odo.update(
+                new Pose2D(DistanceUnit.METER, xMeters, yMeters, AngleUnit.RADIANS, headingRadians),
+                new Pose2D(DistanceUnit.METER, velocityMetersPerSec.x, velocityMetersPerSec.y, AngleUnit.RADIANS, angularVelocityRadiansPerSec),
+                new Pose2D(DistanceUnit.METER, accelMetersPerSecSqr.x, accelMetersPerSecSqr.y, AngleUnit.RADIANS, angularAccelRadiansPerSecSqr)
+        );
+        sparkFunOTOSInternal.update();
 
         colorSensor.updateColor(x, y);
 
@@ -268,6 +304,12 @@ public abstract class XDrivePhysicsBase extends VirtualBot {
     public void powerDownAndReset() {
         for (int i = 0; i < 4; i++) motors[i].stopAndReset();
         imu.close();
+        odo.update(
+                new Pose2D(DistanceUnit.METER, x/VirtualField.PIXELS_PER_METER, y/VirtualField.PIXELS_PER_METER, AngleUnit.RADIANS, headingRadians),
+                new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.RADIANS, 0), new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.RADIANS, 0)
+        );
+        sparkFunOTOSInternal.update();
+        goBildaPinpointDriverInternal.update();
         chassisBody.setAngularVelocity(0);
         chassisBody.setLinearVelocity(0,0);
     }
@@ -293,6 +335,20 @@ public abstract class XDrivePhysicsBase extends VirtualBot {
         chassisFixture.setFilter(Filters.CHASSIS_FILTER);
         chassisBody.setMass(MassType.NORMAL);
         world.addBody(chassisBody);
+    }
+
+
+    @Override
+    public synchronized void positionWithMouseClick(MouseEvent arg) {
+        super.positionWithMouseClick(arg);
+        odo.update(
+                new Pose2D(DistanceUnit.METER, x/VirtualField.PIXELS_PER_METER, y/VirtualField.PIXELS_PER_METER, AngleUnit.RADIANS, headingRadians),
+                new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.RADIANS, 0), new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.RADIANS, 0)
+        );
+        odo.setPosition(new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.RADIANS, 0));
+        sparkFunOTOSInternal.update();
+        goBildaPinpointDriverInternal.internalUpdate(false, false);
+        goBildaPinpointDriverInternal.resetEncoders();
     }
 
 }
